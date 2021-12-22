@@ -9,6 +9,7 @@ const ImageGalleryItem = ({ pictures, openModal }) => (
           src={webformatURL}
           alt={tags}
           onClick={() => openModal(largeImageURL, tags)}
+          key={largeImageURL}
         />
       </li>
     ))}
