@@ -33,100 +33,6 @@ class App extends Component {
     error: PropTypes.string,
   };
 
-  //   componentDidUpdate(prevProps, prevState) {
-  //     if (
-  //       prevState.name !== this.state.query ||
-  //       prevState.page !== this.state.page
-  //     ) {
-  //       this.fetchPicturesApi();
-  //     }
-  //   }
-
-  //   onFormSubmit = query => {
-  //     this.setState({ query, pictures: [], page: 1, error: null });
-  //   };
-
-  //   fetchPicturesApi = () => {
-  //     const { query, page } = this.state;
-  //     this.setState({ isLoading: true });
-
-  //     API.fetchPicturesApi(query, page)
-  //       .then(({ this }) => {
-  //         if (this.length === 0) {
-  //           return toast.error(`Sory, not found ${query}`, {
-  //             position: 'top-right',
-  //             hideProgressBar: false,
-  //             autoClose: 4000,
-  //             closeOnClick: true,
-  //             draggable: true,
-  //             pauseOnHover: true,
-  //             progress: undefined,
-  //           });
-  //         }
-  //         this.setState(({ pictures, page }) => ({
-  //           pictures: [...pictures, ...this],
-  //           page: page,
-  //         }));
-  //       })
-  //       .catch(error => this.setState({ error: 'Truy again)' }))
-  //       .finally(() => this.setState({ loading: false }));
-  //   };
-
-  //   onLoadMorePictures = () => {
-  //     this.setState(prevState => ({ page: prevState.page + 1 }));
-  //     this.onScroll();
-  //   };
-
-  //   onScroll = () => {
-  //     setTimeout(() => {
-  //       window.scrollBy({
-  //         top: document.documentElement.clientHeight,
-  //         behavior: 'smooth',
-  //       });
-  //     }, 1000);
-  //   };
-
-  //   onOpenModal = e => {
-  //     e.preventDefault();
-  //     this.setState({
-  //       openModal: true,
-  //       modalImage: e.target.dataset.largeimg,
-  //       alt: e.target.alt,
-  //     });
-  //   };
-
-  //   onCloseModal = () => {
-  //     this.setState({
-  //       openModal: false,
-  //     });
-  //   };
-
-  //   render() {
-  //     const { pictures, isLoading, openModal, modalImage, alt, error } =
-  //       this.state;
-
-  //     return (
-  //       <div className={styles.App}>
-  //         <Searchbar onSubmit={this.onSearch} />
-  //         {isLoading && <Load />}
-  //         {pictures.length > 0 && !error && (
-  //           <>
-  //             <ImageGallery openModal={this.onOpenModal} images={pictures} />
-  //             <Button fetchImages={this.onLoadMore} />
-  //           </>
-  //         )}
-  //         {openModal && (
-  //           <Modal onClose={this.onCloseModal} src={modalImage} alt={alt} />
-  //         )}
-  //         {error && <p className={styles.error}>{error}</p>}
-  //         <ToastContainer autoClose={3000} theme={'colored'} />
-  //       </div>
-  //     );
-  //   }
-  // }
-
-  // export default App;
-
   componentDidUpdate(prevProps, prevState) {
     if (
       prevState.query !== this.state.query ||
@@ -147,7 +53,7 @@ class App extends Component {
     API.fetchPicturesApi(query, page)
       .then(({ hits }) => {
         if (hits.length === 0) {
-          return toast.error(`We did not find ${query}!`, {
+          return toast.error(` Not found) ${query}!`, {
             position: 'top-right',
             autoClose: 3000,
             hideProgressBar: false,
@@ -199,12 +105,12 @@ class App extends Component {
 
     return (
       <div className={styles.App}>
-        <Searchbar onSubmit={this.onSearch} />
+        <Searchbar onSubmit={this.onFormSubmit} />
         {isLoading && <Load />}
         {pictures.length > 0 && !error && (
           <>
-            <ImageGallery openModal={this.onOpenModal} images={pictures} />
-            <Button fetchImages={this.onLoadMore} />
+            <ImageGallery openModal={this.onOpenModal} pictures={pictures} />
+            <Button fetchPicturesApi={this.onLoadMorePictures} />
           </>
         )}
         {openModal && (

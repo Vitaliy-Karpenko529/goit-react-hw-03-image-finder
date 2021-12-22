@@ -4,7 +4,7 @@ import ImageGalleryItem from './ImageGalleryItem';
 
 function ImageGallery({ pictures, openModal }) {
   return (
-    <ul className={styles.ImageGallery}>
+    <ul className={styles.ImgGallery}>
       {pictures.map(({ id, tags, webformatURL, largeImageURL }) => {
         return (
           <ImageGalleryItem

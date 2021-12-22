@@ -27,12 +27,12 @@ class Modal extends Component {
     if (e.code !== 'Escape') {
       return;
     }
-    this.props.closeModal();
+    this.props.onClose();
   };
 
   closePicture = e => {
     if (e.target === e.currentTarget) {
-      this.props.closeModal();
+      this.props.onClose();
     }
   };
 
