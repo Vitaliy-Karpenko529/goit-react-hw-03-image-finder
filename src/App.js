@@ -1,102 +1,219 @@
 import React, { Component } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import PropTypes from 'prop-types';
 import Searchbar from './components/Searchbar/Searchbar';
 import Button from './components/Button/Button';
-import ImageGalleryItem from './components/ImageGalleryItem/ImageGalleryItem';
 import ImageGallery from './components/ImageGallery/ImageGallery';
-import fetchPicturesApi from './services/api-image';
+import API from './services/api-image';
 import Modal from './components/Modal/Modal';
-import Loader from './components/Loader/Loader';
+import Load from './components/Loader/Loader';
+import styles from './App.module.css';
 
 class App extends Component {
   state = {
-    name: '',
-    page: 1,
+    query: '',
     pictures: [],
-    status: 'idle',
-    error: null,
-    showModal: false,
-    currentPicture: null,
+    page: 1,
+    error: '',
+    openModal: false,
+    isLoading: false,
+    modalImage: '',
+    alt: '',
   };
+
+  static propTypes = {
+    query: PropTypes.string,
+    pictures: PropTypes.array,
+    page: PropTypes.number,
+    isLoading: PropTypes.bool,
+    openModal: PropTypes.bool,
+    modalImage: PropTypes.string,
+    alt: PropTypes.string,
+    error: PropTypes.string,
+  };
+
+  //   componentDidUpdate(prevProps, prevState) {
+  //     if (
+  //       prevState.name !== this.state.query ||
+  //       prevState.page !== this.state.page
+  //     ) {
+  //       this.fetchPicturesApi();
+  //     }
+  //   }
+
+  //   onFormSubmit = query => {
+  //     this.setState({ query, pictures: [], page: 1, error: null });
+  //   };
+
+  //   fetchPicturesApi = () => {
+  //     const { query, page } = this.state;
+  //     this.setState({ isLoading: true });
+
+  //     API.fetchPicturesApi(query, page)
+  //       .then(({ this }) => {
+  //         if (this.length === 0) {
+  //           return toast.error(`Sory, not found ${query}`, {
+  //             position: 'top-right',
+  //             hideProgressBar: false,
+  //             autoClose: 4000,
+  //             closeOnClick: true,
+  //             draggable: true,
+  //             pauseOnHover: true,
+  //             progress: undefined,
+  //           });
+  //         }
+  //         this.setState(({ pictures, page }) => ({
+  //           pictures: [...pictures, ...this],
+  //           page: page,
+  //         }));
+  //       })
+  //       .catch(error => this.setState({ error: 'Truy again)' }))
+  //       .finally(() => this.setState({ loading: false }));
+  //   };
+
+  //   onLoadMorePictures = () => {
+  //     this.setState(prevState => ({ page: prevState.page + 1 }));
+  //     this.onScroll();
+  //   };
+
+  //   onScroll = () => {
+  //     setTimeout(() => {
+  //       window.scrollBy({
+  //         top: document.documentElement.clientHeight,
+  //         behavior: 'smooth',
+  //       });
+  //     }, 1000);
+  //   };
+
+  //   onOpenModal = e => {
+  //     e.preventDefault();
+  //     this.setState({
+  //       openModal: true,
+  //       modalImage: e.target.dataset.largeimg,
+  //       alt: e.target.alt,
+  //     });
+  //   };
+
+  //   onCloseModal = () => {
+  //     this.setState({
+  //       openModal: false,
+  //     });
+  //   };
+
+  //   render() {
+  //     const { pictures, isLoading, openModal, modalImage, alt, error } =
+  //       this.state;
+
+  //     return (
+  //       <div className={styles.App}>
+  //         <Searchbar onSubmit={this.onSearch} />
+  //         {isLoading && <Load />}
+  //         {pictures.length > 0 && !error && (
+  //           <>
+  //             <ImageGallery openModal={this.onOpenModal} images={pictures} />
+  //             <Button fetchImages={this.onLoadMore} />
+  //           </>
+  //         )}
+  //         {openModal && (
+  //           <Modal onClose={this.onCloseModal} src={modalImage} alt={alt} />
+  //         )}
+  //         {error && <p className={styles.error}>{error}</p>}
+  //         <ToastContainer autoClose={3000} theme={'colored'} />
+  //       </div>
+  //     );
+  //   }
+  // }
+
+  // export default App;
 
   componentDidUpdate(prevProps, prevState) {
     if (
-      prevState.name !== this.state.name ||
+      prevState.query !== this.state.query ||
       prevState.page !== this.state.page
     ) {
-      const { name, page } = this.state;
-
-      fetchPicturesApi(name, page)
-        .then(pictures => {
-          if (pictures.total === 0) {
-            this.setState({
-              error: `not found: ${name}`,
-              status: 'rejected',
-            });
-          } else {
-            this.setState(prevState => ({
-              pictures: [...prevState.pictures, ...pictures.hits],
-              status: 'resolved',
-            }));
-          }
-        })
-        .catch(error => this.setState({ error, status: 'rejected' }));
+      this.fetchPicturesApi();
     }
   }
 
-  formSubmit = name => {
-    this.setState({ name, pictures: [], page: 1, status: 'pending' });
+  onFormSubmit = query => {
+    this.setState({ query, pictures: [], page: 1, error: null });
   };
 
-  loadMorePictures = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
+  fetchPicturesApi = () => {
+    const { query, page } = this.state;
+    this.setState({ isLoading: true });
+
+    API.fetchPicturesApi(query, page)
+      .then(({ hits }) => {
+        if (hits.length === 0) {
+          return toast.error(`We did not find ${query}!`, {
+            position: 'top-right',
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+        }
+        this.setState(({ pictures, page }) => ({
+          pictures: [...pictures, ...hits],
+          page: page,
+        }));
+      })
+      .catch(error => this.setState({ error: 'Please, try again' }))
+      .finally(() => this.setState({ isLoading: false }));
   };
 
-  openModal = (id, largeImageURL, tags) => {
+  onLoadMorePictures = () => {
+    this.setState(prevState => ({ page: prevState.page + 1 }));
+    this.onScroll();
+  };
+
+  onScroll = () => {
+    setTimeout(() => {
+      window.scrollBy({
+        top: document.documentElement.clientHeight,
+        behavior: 'smooth',
+      });
+    }, 1000);
+  };
+
+  onOpenModal = e => {
+    e.preventDefault();
     this.setState({
-      showModal: true,
-      currentPicture: { id, largeImageURL, tags },
+      openModal: true,
+      modalImage: e.target.dataset.largeimg,
+      alt: e.target.alt,
     });
   };
 
-  closeModal = () => {
-    this.setState({
-      showModal: false,
-    });
+  onCloseModal = () => {
+    this.setState({ openModal: false });
   };
 
   render() {
-    const { pictures, status, error, showModal, currentPicture } = this.state;
+    const { pictures, isLoading, openModal, modalImage, alt, error } =
+      this.state;
 
     return (
-      <div className="App">
-        <Searchbar onSubmit={this.formSubmit} />
-        {status === 'pending' && <Loader />}
-        {status === 'resolved' && (
+      <div className={styles.App}>
+        <Searchbar onSubmit={this.onSearch} />
+        {isLoading && <Load />}
+        {pictures.length > 0 && !error && (
           <>
-            <ImageGallery>
-              {pictures.map(({ id, tags, webformatURL, largeImageURL }) => (
-                <ImageGalleryItem
-                  key={id}
-                  id={id}
-                  tags={tags}
-                  webformatURL={webformatURL}
-                  largeImageURL={largeImageURL}
-                  openModal={this.openModal}
-                />
-              ))}
-            </ImageGallery>
-            <Button loadMore={this.loadMorePictures} />
+            <ImageGallery openModal={this.onOpenModal} images={pictures} />
+            <Button fetchImages={this.onLoadMore} />
           </>
         )}
-        {showModal && (
-          <Modal picture={currentPicture} closeModal={this.closeModal} />
+        {openModal && (
+          <Modal onClose={this.onCloseModal} src={modalImage} alt={alt} />
         )}
-        {status === 'rejected' && <h1>{error}</h1>}
+        {error && <p className={styles.error}>{error}</p>}
+        <ToastContainer autoClose={3000} theme={'colored'} />
       </div>
     );
   }
 }
-
 export default App;

@@ -1,14 +1,34 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import styles from './Modal.module.css';
 import PropTypes from 'prop-types';
+import { createPortal } from 'react-dom';
+
+const modalRoot = document.querySelector('#modal-root');
 
 class Modal extends Component {
+  state = {
+    loading: false,
+  };
+
+  static propTypes = {
+    loading: PropTypes.bool,
+  };
+
   componentDidMount() {
+    this.setState({ loading: true });
     window.addEventListener('keydown', this.closePictureByEscape);
   }
   componentWillUnmount() {
     window.removeEventListener('keydown', this.closePictureByEscape);
   }
+
+  closePictureByEscape = e => {
+    console.log(e);
+    if (e.code !== 'Escape') {
+      return;
+    }
+    this.props.closeModal();
+  };
 
   closePicture = e => {
     if (e.target === e.currentTarget) {
@@ -16,29 +36,22 @@ class Modal extends Component {
     }
   };
 
-  closePictureByEscape = e => {
-    console.log(e);
-    if (e.code === 'Escape') {
-      this.props.closeModal();
-    }
+  pictureLoaded = () => {
+    this.setState({ loading: false });
   };
 
   render() {
-    const { picture } = this.props;
+    const { alt, src } = this.props;
 
-    return (
-      <div className={styles.Overlay} onClick={e => this.closePicture(e)}>
-        <div className={styles.Modal}>
-          <img id={picture.id} src={picture.largeImageURL} alt={picture.tags} />
+    return createPortal(
+      <div className={styles.Overlay} onClick={this.closePicture}>
+        <div className={styles.Modal} onLoad={this.pictureLoaded}>
+          <img className={styles.Image} src={src} alt={alt}></img>
         </div>
-      </div>
+      </div>,
+      modalRoot,
     );
   }
 }
-
-Modal.propTypes = {
-  picture: PropTypes.object,
-  closeModal: PropTypes.func,
-};
 
 export default Modal;

@@ -1,16 +1,16 @@
 import styles from './Button.module.css';
 import PropTypes from 'prop-types';
 
-function Button({ loadMore }) {
+function Button({ fetchPicturesApi }) {
   return (
-    <button className={styles.Button} onClick={loadMore}>
+    <button className={styles.Button} type="button" onClick={fetchPicturesApi}>
       Load more
     </button>
   );
 }
 
 Button.propTypes = {
-  loadMore: PropTypes.func,
+  fetchPicturesApi: PropTypes.func,
 };
 
 export default Button;
