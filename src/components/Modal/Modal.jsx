@@ -23,7 +23,6 @@ class Modal extends Component {
   }
 
   closePictureByEscape = e => {
-    console.log(e);
     if (e.code !== 'Escape') {
       return;
     }
