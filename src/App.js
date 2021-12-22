@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import PropTypes from 'prop-types';
-import Searchbar from './components/Searchbar/Searchbar';
-import Button from './components/Button/Button';
-import ImageGallery from './components/ImageGallery/ImageGallery';
+import Searchbar from './components/Searchbar';
+import Button from './components/Button';
+import ImageGallery from './components/ImageGallery';
 import API from './services/api-image';
-import Modal from './components/Modal/Modal';
-import Load from './components/Loader/Loader';
+import Modal from './components/Modal';
+import Load from './components/Loader';
 import styles from './App.module.css';
 
 class App extends Component {
@@ -18,19 +17,9 @@ class App extends Component {
     error: '',
     openModal: false,
     isLoading: false,
-    modalImage: '',
+    largeImageURL: '',
     alt: '',
-  };
-
-  static propTypes = {
-    query: PropTypes.string,
-    pictures: PropTypes.array,
-    page: PropTypes.number,
-    isLoading: PropTypes.bool,
-    openModal: PropTypes.bool,
-    modalImage: PropTypes.string,
-    alt: PropTypes.string,
-    error: PropTypes.string,
+    activeButton: false,
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -48,7 +37,7 @@ class App extends Component {
 
   fetchPicturesApi = () => {
     const { query, page } = this.state;
-    this.setState({ isLoading: true });
+    this.setState({ isLoading: true, activeButton: true });
 
     API.fetchPicturesApi(query, page)
       .then(({ hits }) => {
@@ -66,6 +55,7 @@ class App extends Component {
         this.setState(({ pictures, page }) => ({
           pictures: [...pictures, ...hits],
           page: page,
+          activeButton: false,
         }));
       })
       .catch(error => this.setState({ error: 'Please, try again' }))
@@ -79,28 +69,26 @@ class App extends Component {
 
   onScroll = () => {
     setTimeout(() => {
-      window.scrollBy({
-        top: document.documentElement.clientHeight,
+      window.scrollTo({
+        top: document.documentElement.scrollHeight,
         behavior: 'smooth',
       });
     }, 1000);
   };
 
-  onOpenModal = e => {
-    e.preventDefault();
+  onOpenModal = (imgLarge, alt) => {
     this.setState({
-      openModal: true,
-      modalImage: e.target.dataset.largeimg,
-      alt: e.target.alt,
+      largeImageURL: imgLarge,
+      alt,
     });
   };
 
   onCloseModal = () => {
-    this.setState({ openModal: false });
+    this.setState({ largeImageURL: '' });
   };
 
   render() {
-    const { pictures, isLoading, openModal, modalImage, alt, error } =
+    const { pictures, isLoading, error, largeImageURL, alt, activeButton } =
       this.state;
 
     return (
@@ -110,11 +98,14 @@ class App extends Component {
         {pictures.length > 0 && !error && (
           <>
             <ImageGallery openModal={this.onOpenModal} pictures={pictures} />
-            <Button fetchPicturesApi={this.onLoadMorePictures} />
+            <Button
+              fetchPicturesApi={this.onLoadMorePictures}
+              status={activeButton}
+            />
           </>
         )}
-        {openModal && (
-          <Modal onClose={this.onCloseModal} src={modalImage} alt={alt} />
+        {largeImageURL && (
+          <Modal onClose={this.onCloseModal} src={largeImageURL} alt={alt} />
         )}
         {error && <p className={styles.error}>{error}</p>}
         <ToastContainer autoClose={3000} theme={'colored'} />
